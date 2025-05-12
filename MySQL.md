@@ -156,5 +156,64 @@ max() 返回最大值
 min() 返回最小值
 sum() 求和
 
-+ 
++ select 参数 from name group by 参数;
+按照设定的参数分组，可以搭配前面使用的count,实现对总数比例的查询，例如  
+select sex, count(*) from player group by sex;  
+这就实现了对男女比例的调查
+这里再介绍几个会一起用到的
+having 参数 满足的条件  加在后面就可以只输出满足条件的分组了
+也可以使用order by 具体的条件  进行排序     
+使用limit 数量 来控制输出的条数，同时limit也可以指定偏移量，在后面加上偏移的数字就行了      
+
+* select distinct 参数 from name；
+对输出的结果去重       
+
+* union
+在两条语句中间加上union,可以将输出合并，注意输出的内容会自动去重，也就是取并集  
+
+* intersect
+与union类似，加在两条语句中间，但是将输出取交集，输出同时在两个输出的内容   
+ 
+* except
+与上面类似，加在两条语句中间，将输出两个输出的差集，也就是在第一个集合不在第二个集合    
+
+### 子查询
+将前一个语句的结果传给下一个语句，可以使用在select语句，where语句，create语句，update语句，等等其他语句，例如   
+1. 在where中使用    
+select * from player where level > (select avg(level) from player) order by level;    
+1. 在select中使用   
+select level,(select avg(level) from player) as avg_level,level - (select avg(level) from player) as diff from player;      
+这里使用了as,起别名，这样输出中就不会带上长的语句，而是输出别名     
+1. 在create中使用       
+create table temp_player select * from player where level < 10;     
+
+* exists
+查询是否存在某个条件的用例，他的返回值只有0和1,也就是有或没有  v 
+
+### 表关联
+表关联加join,有inner join,left join,right join
+inner join 取两个表中匹配的部分
+select * from player inner join equip on player.id = equip.player_id;
+输出所有有装备的人物，既要还要
+left join取左表的全部 + 右表匹配的部分
+select * from player left join equip on player.id = equip.player_id;
+输出所有人物，若有装备则输出，没装备则输出NULL
+left join取右表的全部 + 左表匹配的部分
+select * from player right join equip on player.id = equip.player_id;
+输出所有装备，若有人物则输出，没人物则输出NULL
+
+>如何区分左表和右表，在join左边的是左表，在join右边的是右表
+>注意一定要加上on,否则会出现笛卡尔积，就是两个表每一项都与另一表的每一项一一对应，会输出大量数据
+
+同时，也可以不加left join这些，直接使用where作为筛选条件，比如      
+select * from player , equip where player.id = equip.player_id;     
+也可以直接筛选出来
+
+当多个表进行查询时，使用别名会方便许多比如   
+select * from player p, equip e where p.id = q.player_id;
+
+### 索引
+为了提高查询效率，需要创建索引
+
+creat [unique|fulltext|spatial] index index_name on tbl_name (index_col_name...)
 
