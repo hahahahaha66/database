@@ -11,9 +11,8 @@
 class Student 
 {
 public:
-    Student(int id, std::string name) : id_(id), name_(name)
-    {}
-    ~Student();
+    Student(int id, std::string name) : id_(id), name_(name) {}
+    ~Student() {};
 
     int getid() { return id_; }
     std::string getname() { return name_; }
@@ -32,6 +31,7 @@ public:
     void insert_student(Student& t);
     void update_student(Student& t);
     void delete_student(Student& t);
+    void select_all_student();
     std::vector<Student> get_student(std::string condition = "");
 
 private:
