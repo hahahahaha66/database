@@ -1,0 +1,40 @@
+FROM ubuntu:24.04
+
+# 设置非交互模式安装环境
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Shanghai
+
+# 安装构建依赖和基础工具
+RUN apt update && apt install -y \
+    tzdata \
+    build-essential \
+    git \
+    cmake \
+    pkg-config \
+    redis-server \
+    libssl-dev \
+    g++ \
+    make \
+    curl \
+    ca-certificates
+
+# 安装最新版 hiredis（主分支最新提交）
+WORKDIR /tmp/hiredis
+RUN git clone https://github.com/redis/hiredis.git . && \
+    make && make install && ldconfig
+
+# 安装 redis-plus-plus（主分支最新提交）
+WORKDIR /tmp/redis-plus-plus
+RUN git clone https://github.com/sewenew/redis-plus-plus.git . && \
+    mkdir -p build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release && \
+    make -j$(nproc) && make install && ldconfig
+
+# 设置动态库查找路径
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
+# 工作目录挂载点（可选）
+WORKDIR /workspace
+
+# 默认启动 Redis 服务（你可以自行覆盖）
+CMD ["redis-server"]
