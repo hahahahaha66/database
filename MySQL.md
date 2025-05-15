@@ -233,5 +233,3 @@ alter view view_name as 修改的部分；
 5. having 
 6. order by
 7. limit
-
-
