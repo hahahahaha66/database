@@ -3,6 +3,8 @@
 #include "muduo/net/tcp/TcpClient.h"
 #include "muduo/net/EventLoop.h"
 #include "muduo/net/tcp/InetAddress.h"
+
+#include <nlohmann/json.hpp>
 #include <cstddef>
 #include <functional>
 #include <thread>
@@ -31,7 +33,7 @@ private:
     void order()
     {
         std::cout << "*************************************" << std::endl;
-        std::cout << "1.所有用户 " << "2.添加用户" << std::endl;
+        std::cout << "1.输出所有用户 " << "2.添加用户" << std::endl;
         std::cout << "输入q退出" << std::endl;
         std::cout << "*************************************" << std::endl;
     }
@@ -41,10 +43,34 @@ private:
         std::string line;
         while (true) {
             order();
-            if (getline(std::cin, line)) break;
-            std::string msg = line;
-            if (msg == "q") break;
-            conn->getLoop()->runInLoop([conn, msg]() { conn->send(msg); });
+            if (!std::getline(std::cin, line)) break;
+
+            if (line == "q") break;
+
+            nlohmann::json msg;
+
+            if (line == "1") {
+                msg["op"] = 1;
+            } else if (line == "2") {
+                msg["op"] = 2;
+                std::cout << "Enter id: ";
+                int id;
+                std::cin >> id;
+                std::cin.ignore(); // 丢掉换行符
+
+                std::cout << "Enter name: ";
+                std::string name;
+                std::getline(std::cin, name);
+
+                msg["id"] = id;
+                msg["name"] = name;
+            } else {
+                std::cout << "Unknown command\n";
+                continue;
+            }
+
+            std::string sendmsg = msg.dump();
+            conn->getLoop()->runInLoop([conn, sendmsg]() { conn->send(sendmsg); });
         }
     }
 
